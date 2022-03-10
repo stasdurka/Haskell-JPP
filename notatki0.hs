@@ -141,8 +141,13 @@ incAll xs = map (map (+1)) xs
 -- b. Napisz przy pomocy foldr
 --     silnię
 fact :: Int -> Int
-fact1 n = foldr (*) 1 [1..n]
+fact n = foldr (*) 1 [1..n]
 --     concat :: [[a]] -> [a]
-concat :: [[a]] -> [a]
-concat xs = foldr 
--- c. Napisz nub przy pomocy filter
+concat'' :: [[a]] -> [a]
+concat'' = foldr (++) []
+
+-- c. Napisz nub (wywala duplikaty z listy) przy pomocy filter
+nub :: Eq a => [a] -> [a]
+nub [] = []
+nub (x:xs) = x : (filter (/=x) (nub xs))
+-- nub xs = foldr (\ x -> filter (/= x)) [] xs

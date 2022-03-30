@@ -1,0 +1,33 @@
+set = [3 * x | x <-[1..10], mod x 2 == 1]
+set2 = [(x,y) | x<-[1..5], y<-[1,2,3], x+y == 5, x*y == 6]
+
+fact1 n = if n<2 then 1 else n*fact1(n-1)
+
+fact2 n | n <= 1 = 1
+        | otherwise = n*fact2(n-1)
+
+fact3 0 = 1
+fact3 n = n * fact3 (n-1)
+
+fact4 n = case n of {
+    0 -> 1;
+    m -> m * fact4(m-1)
+}
+
+myzip :: [a] -> [b] ->[(a,b)]
+myzip (x:xs) (y:ys) = (x,y):myzip xs ys
+myzip _ _ = []
+
+let
+    x = 1
+    y = 2
+in x+y
+
+let answer = 42 in answer
+
+f xs = let
+    len [] = 0
+    len (x:xs) = 1 + len xs
+in len xs
+
+-- zadanie: podzielic liste na dwie: el. <= n i el. > n

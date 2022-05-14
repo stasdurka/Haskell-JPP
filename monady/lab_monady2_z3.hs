@@ -2,6 +2,9 @@
 -- 3. Monada State
 -- a. Napisz funkcję, która ponumeruje wezly drzewa tak, ze kazdy z nich bedzie mial inny numer
 -- renumberTree :: Tree a -> Tree Int
+import Control.Monad.State
+
+data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Eq, Ord, Show)
 
 renumberMS :: Tree a -> State Int (Tree Int)
 renumberMS Empty = return Empty
@@ -42,18 +45,18 @@ data BExp = BTrue
           | BNot BExp
           | BOp BOp BExp BExp
           | BCmp Cmp Exp Exp
-          deriving Show
+        --   deriving Show
 data BOp = BAnd | BOr deriving Show
 data Cmp = Eq | Lt | Leq | Gt | Geq | Neq deriving Show
 
-evalBExp :: BExp -> Bool
-evalBExpM :: BExp -> State Bool
+-- evalBExp :: BExp -> Bool
+-- evalBExpM :: BExp -> State Bool
 
 data Stmt = SSkip -- skip
           | SAssign Var Exp -- x := e
           | SNext Stmt Stmt -- S1 ; S2
           | SIf BExp Stmt Stmt -- if b then S1 else S2
           | SWhile BExp Stmt -- while b do S
-          deriving Show
+        --   deriving Show
 
 

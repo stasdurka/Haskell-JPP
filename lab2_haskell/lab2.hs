@@ -2,7 +2,7 @@
 data Tree a = Empty 
    | Node a (Tree a) (Tree a) 
 
--- 1 a. stwórz własne instancje Eq, Show
+-- 1 a. stwórz własne ins§tancje Eq, Show
 instance Show a => Show (Tree a) where
    show Empty = "" 
    -- show (Node x l r) = " (Node " ++ (show x)  ++ (show l) ++ (show r) ++ ")"
@@ -12,7 +12,7 @@ instance Show a => Show (Tree a) where
       g Empty = showString "";
       g (Node a l r) = shows l . shows a . shows r;
    } in g t ""
-      
+
  
 
 instance Eq a => Eq (Tree a) where
@@ -66,8 +66,8 @@ elimMaybe c f Nothing = c
 elimMaybe _ f (Just x) = f x
 
 fromMaybe :: a -> Maybe a -> a
-elimMaybe y Nothing = y
-elimMaybe _ (Just x) = x
+fromMaybe y Nothing = y
+fromMaybe _ (Just x) = x
 
 mapMaybe :: (a -> b) -> Maybe a -> Maybe b
 mapMaybe f Nothing = Nothing

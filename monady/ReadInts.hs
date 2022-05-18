@@ -9,9 +9,9 @@ readInts str = fmap read (filter (all isDigit) (splitOn " " str)) :: [Integer]
 
 -- b.
 readEither :: String -> Either String Int
-readEither str = case (all isDigit str) of 
-                    True -> Right (read str :: Int)
-                    False -> Left $ "Error: " ++ str ++ " is not a number"
+readEither str = if all isDigit str 
+                then Right (read str :: Int) 
+                else Left $ "Error: " ++ str ++ " is not a number"
 
 -- readInts2 :: String -> Either String [Int]
 -- readInts2 str = ri $ splitOn " " str where
@@ -20,7 +20,7 @@ readEither str = case (all isDigit str) of
 readInts2 str = mapM readEither (splitOn " " str)
 
 sumInts :: String -> String
-sumInts str = case (readInts2 str) of
+sumInts str = case readInts2 str of
                 Left error -> error
-                Right l -> show $ foldr (+) 0 l
+                Right l -> show $ sum l
 

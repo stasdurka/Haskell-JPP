@@ -1,13 +1,12 @@
 import Control.Monad.Reader
-import Control.Monad.State
 import Data.Map
 
 data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Eq, Ord, Show)
--- renumber :: Tree a -> Tree Int
--- renumber t = r 0 t where
---     r :: Int -> Tree a -> Tree Int
---     r h (Node x l r) = Node h (r (h+1) l) (r (h+1) r)
---     r _ Empty = Empty
+renumber :: Tree a -> Tree Int
+renumber t = rn 0 t where
+    rn :: Int -> Tree a -> Tree Int
+    rn h (Node x l r) = Node h (rn (h+1) l) (rn (h+1) r)
+    rn _ Empty = Empty
 
 -- env = Int
 -- m ~ Env -> Int == Int -> Int
@@ -27,6 +26,7 @@ run t = runReader (renumberM t) 0
 
 -- b.
 type Var = String
+
 data Exp = EInt Int
      | EOp  Op Exp Exp
      | EVar Var
@@ -38,31 +38,31 @@ data Op = OpAdd | OpMul | OpSub
 type Env = Map Var Int
 
 evalM :: Exp -> Reader Env Int
-evalM (EOp o e1 e2) = 
+evalM (EOp o e1 e2) =
     let
         op :: Num a => Op -> a -> a -> a
-        op e = case e of 
+        op e = case e of
             OpAdd -> (+)
             OpMul -> (*)
-            OpSub -> (-) 
+            OpSub -> (-)
     in do
         n1 <- evalM e1
         n2 <- evalM e2
         return $ (op o) n1 n2
 evalM (EInt n) = return n
-evalM (EVar v) = 
-    -- do
-    --     env <- ask
-    --     return (env ! v)
-    asks (! v)
-     
+evalM (EVar v) =
+    do
+        env <- ask
+        return (env ! v)
+    -- asks (! v)
+
 evalM (ELet v e1 e2) = do
     n1 <- evalM e1
     n2 <- local (insert v n1) (evalM e2)
     return n2
 
 runEval :: Exp -> Int
-runEval t = runReader (evalM t) (fromList [])
+runEval t = runReader (evalM t) empty -- empty Map
 
 test = ELet "x" (ELet "y" (EOp OpAdd (EInt 6) (EInt 9))
                       (EOp OpSub y (EInt 1)))

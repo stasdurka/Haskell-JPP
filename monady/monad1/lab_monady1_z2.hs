@@ -14,7 +14,7 @@ findVar e name = if member name e then Right (e ! name) else Left "Variable not 
 
 eval :: Env -> Exp -> Either String Int
 -- ten sam kod co w either
-eval _ (Val x) = return x     -- Just n
+eval _ (Val x) = return x     -- Right x
 eval env (Div x y) = eval env x >>= \n -> 
                  eval env y >>= \m ->
                  safediv n m

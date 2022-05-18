@@ -1,0 +1,50 @@
+1. Typy z "error"
+
+import qualified Data.Map as Map
+import Data.Maybe(fromJust)
+
+import IntLambda
+type Env = Map.Map Name Type
+
+typeOf0 :: Env -> Exp -> Type
+
+
+
+
+
+
+2. Typy z monadą Except
+
+import qualified Data.Map as Map
+import Data.Maybe(fromJust)
+import Control.Monad.Reader
+import Control.Monad.Except
+
+import IntLambda
+type Env = Map.Map Name Type
+type TCM a = ExceptT String (Reader Env) a
+
+{-
+
+ExceptT e m a 
+
+e - error type
+m - inner monad 
+a - value type
+
+runExceptT :: ExceptT e m a -> m (Either e a)
+runExceptT :: TCM a -> Reader Env (Either String a)
+
+MonadReader r m => MonadReader r (ExceptT e m)
+Monad m => MonadError e (ExceptT e m)
+
+throwError :: e -> m a
+catchError :: m a -> (e -> m a) -> m a
+
+-}
+
+
+
+b)typeOf0 :: Exp -> TCM Type
+
+c)typeCheck :: Exp -> IO ()

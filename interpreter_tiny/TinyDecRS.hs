@@ -150,7 +150,7 @@ testIB2 = Block [VarD "x" (IntE 1)] (AS "y" (OpE (-) (VarE "y") (VarE "x")))
 testWB = SeqS (IfS (VarE "x") testIB1 testIB2) (AS "x" (OpE (+) (VarE "x") (VarE "y")))
 testW = WhileS (VarE "y") testWB
 
-testPrgW = Block [VarD "x" (IntE (0)), VarD "y" (IntE 10)] testW
+testPrgW = Block [VarD "x" (IntE 0), VarD "y" (IntE 10)] testW
 
 
 

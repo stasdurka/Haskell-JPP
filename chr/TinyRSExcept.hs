@@ -123,7 +123,7 @@ interpret (AS x e)  =
  do
   env <- ask
   l <- evalMaybe "undefined variable" (M.lookup x env)
-  w <- (eval e) 
+  w <- eval e 
   modify (M.insert l w)
    
 
@@ -133,12 +133,12 @@ interpret (SeqS s1 s2) = do {interpret s1;interpret s2}
 
 interpret (IfS e s1 s2) = 
  do 
-  w <- (eval e) 
+  w <- eval e 
   if w==0 then interpret s2 else interpret s1
     
 interpret (WhileS e s1) = 
  do 
-  w <- (eval e) 
+  w <- eval e 
   if w==0 then interpret S else do {interpret s1; interpret (WhileS e s1)} 
 
 interpret (Block [] s) =  interpret s
@@ -174,10 +174,10 @@ interpretCatch s = do
 --
 -- A simple text expression:
 --
---      let x =
---          let y = 5 + 6
---          in y / 5
---      in x * 3
+    --  let x =
+    --      let y = 5 + 6
+    --      in y / 5
+    --  in x * 3
 -- 
 -- ==>  6
 --

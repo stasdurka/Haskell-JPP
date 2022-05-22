@@ -1,0 +1,486 @@
+Notatki z zajęć o rekonstrukcji typów...
+
+Skróty notacyjne:
+
+\x.t = λx.t = \x -> t (3 Haskellu)
+
+|- = ⊦ "wyprowadza" (w wyprowadzeniach typów)
+
+|-> = ↦ "mapsto" (w podstawieniach)
+
+G = Γ  "Gamma" (skrót na określone środowisko w wyprowadzeniach typów)
+
+
+*) \x y. y x 7
+
+G |- y : ay   G |- x : ax
+--------------------------(app) (2)
+       G |- y x : a2           G |- 7 : int
+       ----------------------------------- (app) (1)
+       (G) x : ax, y: ay  |-  y x 7 : a1
+           ------------------------ (abs)
+           x : ax |- \y. y x 7  : ay -> a1
+           ------------------------ (abs)  (0)
+            |- \x y. y x 7  :  a0
+           
+
+
+(0) a0 = ax -> ay -> a1
+(1) a2 = int -> a1
+(2) ay = ax -> a2
+
+a2 |-> int -> a1
+ay |-> ax -> int -> a1
+a0 |-> ax -> (ax -> int -> a1) -> a1
+
+
+końcowy typ:
+a -> (a -> int -> b) -> b
+
+
+
+
+
+
+
+
+
+
+*) \x. x x
+
+x:ax |- x:ax    x:ax |- x:ax
+----------------------------- (app) (1)
+x:ax |- x x : a1
+----------------- (abs) (0)
+ |- \x. x x  : a0
+
+
+(0) a0 = ax -> a1
+(1) ax = ax -> a1    <- niemożliwe
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*) \f x y. f (f y) 5 
+
+
+               G |- f : af    G|- y:ay
+               ----------------------- (app) (3)
+G |- f : af     G |- f y : a3
+------------------------------(app) (2)
+     G |- f (f y) : a2          G |- 5 : int
+    --------------------------------------- (app) (1)
+(G)  f:af x:ax y:ay |- f (f y) 5 : a1
+======================================== (abs) × 3
+\f x y. f (f y) 5 : af -> ax -> ay -> a1
+
+(1) a2 = int -> a1
+(2) af = a3 -> a2
+(3) af = ay -> a3
+
+Przy okazji: unifikacja
+
+Algorytm przerabia <równania, podstawienie> na inne podobne aż nie
+uzna, że nie da się, albo nie skończą mu się równania. Wtedy
+poprawność algorytmu gwarantuje, że końcowe podstawienie unifikuje
+(czyli zrównuje) początkowe równania. W dodatku podstawienie to jest
+najbardziej ogólne (tzn. każde inne podstawienie, które unifikuje te
+równania jest instancją podstawienia obliczonego przez algorytm, czyli
+że jest wynikiem złożenia tego podstawienia z jakimś innym)
+
+Algorytm za każdym krokiem "rozprawia się" z jednym równaniem (kolejność dowolna).
+
+Początkowo podstawienie jest oczywiście puste.
+
+0) start
+podstawienie
+ <puste>
+równania
+ a2 = int -> a1
+ af = a3 -> a2
+ af = ay -> a3
+
+
+*) x=x (usuwamy) [u nas to nie wystąpiło, ale ogólnie mogłoby]
+1) x = t (x nie występuje w t)
+podstawienie
+ a2 |-> int -> a1
+równania
+ af = a3 -> (int -> a1)
+ af = ay -> a3
+
+2) x = t (x nie występuje w t)
+podstawienie
+ a2 |-> int -> a1
+ af |-> a3 -> int -> a1
+równania
+ a3 -> (int -> a1) = ay -> a3
+
+3) t = t' (symbole takie same)
+
+podstawienie
+ a2 |-> int -> a1
+ af |-> a3 -> int -> a1
+równania
+ a3 = ay
+ (int -> a1) = a3
+
+4) x = t (ale tu t to inna zmienna)
+
+podstawienie
+ a2 |-> int -> a1
+ af |-> a3 -> int -> a1
+ ay |-> a3
+równania
+ (int -> a1) = a3
+
+5) x = t (ale tu t = x)
+
+podstawienie
+ a2 |-> int -> a1
+ af |-> (int -> a1) -> int -> a1
+ ay |-> (int -> a1)
+ a3 |-> (int -> a1)
+równania
+ <puste>
+
+końcowy typ:
+\f x y. f (f y) 5 : ((int -> a1) -> int -> a1) -> ax -> (int -> a1) -> a1
+
+
+
+
+
+
+
+
+
+*) \f. f (\x. f 5)
+
+
+               G |- f : af      G |- 5 : int     
+               -----------------------------(app) (3)
+             (G)  f:af x:ax |- f 5 : a3
+              ---------------------------(abs) (2)
+f:af |- f :af   f:af |- (\x. f 5) : a2
+-------------------------------------(app) (1)
+f:af |- f (\x. f 5) : a1
+--------------------------(abs)
+\f. f (\x. f 5) : af -> a1
+
+
+(1) af = a2 -> a1
+(2) a2 = ax -> a3
+(3) af = int -> a3
+
+1) x = t
+
+podstawienie
+  af |-> a2 -> a1
+równania
+  a2 = ax -> a3
+  a2 -> a1 = int -> a3
+
+
+2) x = t
+
+podstawienie
+  af |-> (ax -> a3) -> a1
+  a2 |-> ax -> a3
+równania
+  (ax -> a3) -> a1 = int -> a3
+
+
+3) t = t' (takie same symbole)
+
+podstawienie
+  af |-> (ax -> a3) -> a1
+  a2 |-> ax -> a3
+równania
+  (ax -> a3) = int     <---- nie da się!
+  a1 = a3
+
+
+4) t = t' (różne symbole) PORAŻKA
+
+
+
+
+
+
+"Do domu"   :)
+
+\y f. f y (\x. f x y)
+
+
+(tu powinno się natrafić na przypadek x = t (gdzie x _występuje_ w t) <-- porażka )
+
+
+
+
+
+
+
+
+Nowe symbole "typo-twórcze" (konstruktory typów) traktujemy jak
+"symbole funkcyjne" (wg nomenklatury z alg. unifikacji)
+
+
+Tree t1 = [s1]      
+[t] = s1 -> s2     <-- różne symbole - porażka
+
+
+[t] = [t1]   --->   t = t1
+
+(t1,t2) = (s1,s2)   ---> t1 = s1 , t2 = s2
+
+Tree t1 = Tree s1   --->  t1 = s1 
+
+
+
+Licząc naiwnie możemy dostać wykładnicze podstawienie, np:
+
+  a0 = a1 -> a1
+  a1 = a2 -> a2
+  ...
+  an = a -> a
+
+a0 |-> ((a->a)->(a->a)) -> ....)    "2^n"
+
+
+W praktyce daje się to robić liniowo, stosując różne triki (sharing,
+opóźnianie podstawień, opóźnianie occur-checku itp).
+
+
+
+
+-> rozszerzenia: ML, np id = \x. x, id : a -> a
+   ale w (poprawnym) termie id (+5) $ id 7
+   mamy raz a = int -> int
+   drugi raz a = int
+
+obliczeniowo te dwa termy są równoważne (ale ten pierwszy się nie typuje):
+(\id. id (+5) $ id 7)  (\x.x)
+
+let id = \x.x in id (+5) $ id 7
+
+id :: a->a
+id :: "\forall a. a->a"    "schemat typu", albo typ polimorficzny
+
+(id: a1->a1)  (+5)       (id:a2->a2) (7)
+a1 = int -> int           a2 = int
+
+W każdym wystąpieniu id używamy świeżych zmiennych.
+
+
+"staranne" rozpisanie "x+1"
+
+|- (+) : int->int->int   |- x : c
+--------------------------------- (app) (2)
+        |- (+) x : b                  |- 1:int
+---------------------------------------------- (app) (1)
+                   |-  (+) x 1 : a
+
+(1) b = int -> a
+(2) int -> (int -> int) = c -> b
+====>
+a |-> int, c = int, b = int -> int
+
+
+
+Zadanie o typach z egzaminu 2018
+
+
+"Psychologicznie" widać, że R powinien się otypować (bo inaczej 4/5
+zadania by było od razu zrobione...) no to spróbujmy:
+do \x.xx można używać reguły (foo) (wiele razy pod rząd :), ale kiedyś
+i tak trzeba użyć normalnej reguły dla lambdy
+
+
+
+                      (var)
+                  x:ax |- x : ax
+   (var)          --------------- (foo)
+x:ax |- x : a2    x:ax |- x : a3
+---------------------------------(app)
+x:ax |- x x : a1      (tu można by zrobić "wrzutkę" z reguły foo - patrz niżej)
+--------------- (abs)
+\x. x x :  a0
+
+(0) a0 = ax -> a1
+(1) a2 = a3 -> a1
+(2) a2 = ax
+(3) a3 = foo
+
+a0 |-> (foo -> a1) -> a1
+ax=a2
+a2 |-> foo -> a1
+a3 |-> foo
+
+
+A ZATEM:
+Pierwsza możliwość:
+\x. x x :  (foo -> a1) -> a1
+
+
+                    
+                                x : foo -> a1 |- x : foo -> a1
+                               -------------------------------- (foo)
+x:foo -> a1 |- x : foo -> a1    x : foo -> a1 |- x : foo
+----------------------------------------------------------(app)
+x:foo -> a1 |- x x : a1                 (**^to^**)
+------------------------------- (abs)
+ |- \x. x x :  (foo -> a1) -> a1       <=== (1)
+--------------------------- (foo)
+ |- \x. x x :  foo                     <=== (2)
+
+
+Druga możliwość:
+\x. x x :  foo
+
+
+Jest jeszcze trzecia możliwość:
+\x. x x :  (foo -> a1) -> foo
+
+           ....
+x:foo -> a1 |- x x : a1                 (**^tu^**)
+-----------------------(foo)
+x:foo -> a1 |- x x : foo
+------------------------------- (abs)
+ |- \x. x x :  (foo -> a1) -> foo      <=== (3)
+
+
+Czyli R ma typy foo,  (foo -> a) -> a  oraz  (foo -> a) -> foo
+dla dowolnych możliwych a.
+
+
+a) RI
+
+I ma typ a -> a, więc I ma typ foo -> foo
+
+|- R : (foo -> foo) -> foo     |- I : foo -> foo
+------------------------------------------------
+          |- R I : foo
+
+b) R(K2)
+
+Rozważmy typy dla K:
+
+x:a y:b |- x:a
+-------------- (foo)
+x:a y:b |- x:foo
+=====================
+|- K : a -> (b -> foo)
+
+
+x:a y:b |- x:a
+-------------- (abs)
+x:a |- \y.x: b->a
+-----------------(foo)
+x:a |- \y.x: foo
+=====================
+|- K : a -> foo
+
+
+x:a y:b |- x:a
+-------------- (foo)
+x:a y:b |- x:foo
+----------------- (abs)
+x:a |- \y.x: b->foo
+-------------------- (foo)
+x:a |- \y.x: foo
+=====================
+|- K : a -> foo
+
+
+....
+----------(foo)
+|- K : foo
+
+
+Zatem K ma typy: a->(b->a), a->(b->foo), a->foo, foo (dla dowolnych typów a, b)
+No więc biorąc
+
+R :  (foo -> a1) -> a1    dla a1=int   oraz
+K : a -> (b -> a)         dla a=int, b=foo    mamy
+
+
+                             |- K : int -> (foo -> int)    |- 2: int
+                             ---------------------------------------
+   |-  R :  (foo -> int) -> int      |- K 2 : foo -> int
+   -----------------------------------------------------
+              |- R (K 2) : int
+
+
+
+c) R 2
+
+|- 2 : int  lub
+
+|- 2 : int
+---------- (foo)
+|- 2 : foo
+
+Typy dla R to albo foo, albo (foo->a) -> coś, więc żaden z nich nie
+pozwala na aplikację R 2, gdyż: R:foo w ogóle się nie nadaje do
+aplikacji, a w pozostałych przypadkach foo->a nie jest unifikowalne
+z int ani z foo.
+
+d) R R
+
+To też się nie typuje. Typowanie R:foo dla lewego R odpada, więc
+pozostaje rozważyć (foo->a) -> coś
+I żeby R R się typowało, to typ prawego R musiałby pasować do (foo->a),
+a to niemożliwe, bo typ R to albo foo, albo (foo->a')->coś, więc
+musielibyśmy mieć (foo->a') = foo a to jest niemożliwe.
+
+e) (K K) K
+To się typuje w zwykłych typach prostych...
+zobaczmy...
+K : a -> b -> a, więc żeby zaaplikować K do K, musimy w pierwszym K za a wstawić coś postaci a' -> b' -> a'
+a zatem:
+|- K : (a' -> b' -> a') -> b -> (a' -> b' -> a')   |- K : a' -> b' -> a'
+------------------------------------------------------------------------(app)
+        |- K K : b -> (a' -> b' -> a')
+
+Teraz, żeby to powyższe zaaplikować do (kolejnego) K, to typ b też musi być postaci a'' -> b'' -> a'', a więc mamy:
+
+(tutaj to wyprowadzenie powyżej, ale z b = a'' -> b'' -> a'')
+    ....
+ |- K K : (a'' -> b'' -> a'') -> (a' -> b' -> a')             |- K : a'' -> b'' -> a''
+-------------------------------------------------------------------------------------- (app)
+          |- (K K) K : a' -> b' -> a'
+
+
+Ale używając foo, można zrobić dużo krótsze wyprowadzenie:
+
+                               |- K : a -> b -> a
+                              --------------------(foo)
+|- K : foo -> foo -> foo          |- K : foo              |- K : a' -> b' -> a'
+---------------------------------------------(app)        --------------------(foo)
+                 |- K K : foo -> foo                          |- K : foo
+               -----------------------------------------------------------(app)
+                                     |- (K K) K : foo
+
+(oczywiście pominęliśmy wszędzie "na górze" zwykłe wyprowadzenia typów
+dla poszczególnych K, które zrobiliśmy już wcześniej, poza tym były dane
+w treści zadania)
+
+
+W sumie okazało się, że rozważanie wszystkich możliwych typów dla K
+(w obecności foo) do niczego się nie przydało... Wystarczyło korzystać
+ze zwykłego typowania K : a -> b -> a podanego w treści zadania :)

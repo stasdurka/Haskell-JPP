@@ -38,11 +38,10 @@ The reserved words used in mojeLatte are the following:
 The symbols used in mojeLatte are the following:
   | ( | ) | , | {
   | } | ; | = | ++
-  | -- | [ | ] | -
-  | ! | && | || | +
-  | * | / | % | <
-  | <= | > | >= | ==
-  | != |  |  |
+  | -- | - | ! | &&
+  | || | + | * | /
+  | % | < | <= | >
+  | >= | == | != |
 
 ===Comments===
 Single-line comments begin with #, //.Multiple-line comments are  enclosed with /* and */.
@@ -62,11 +61,9 @@ All other symbols are terminals.
   |  |  **|**  | //Arg//
   |  |  **|**  | //Arg// ``,`` //[Arg]//
   | //Block// | -> | ``{`` ``let`` //[Decl]// ``in`` //[Stmt]// ``}``
-  | //Decl// | -> | //Type// //[Item]// ``;``
+  | //Decl// | -> | //Type// //Item// ``;``
   | //Item// | -> | //Ident//
   |  |  **|**  | //Ident// ``=`` //Expr//
-  | //[Item]// | -> | //Item//
-  |  |  **|**  | //Item// ``,`` //[Item]//
   | //[Decl]// | -> | //Decl//
   |  |  **|**  | //Decl// //[Decl]//
   | //[Stmt]// | -> | **eps**
@@ -81,17 +78,13 @@ All other symbols are terminals.
   |  |  **|**  | ``if`` ``(`` //Expr// ``)`` //Block// ``else`` //Block//
   |  |  **|**  | ``while`` ``(`` //Expr// ``)`` //Block//
   |  |  **|**  | ``for`` //Ident// ``in`` ``range`` ``(`` //Expr// ``)`` //Block//
-  |  |  **|**  | //Expr// ``;``
   | //Type// | -> | ``int``
   |  |  **|**  | ``string``
   |  |  **|**  | ``boolean``
-  |  |  **|**  | //Type// ``[`` //Integer// ``]``
-  |  |  **|**  | //Type// ``[`` ``]``
   | //[Type]// | -> | **eps**
   |  |  **|**  | //Type//
   |  |  **|**  | //Type// ``,`` //[Type]//
   | //LValue// | -> | //Ident//
-  |  |  **|**  | //Ident// ``[`` //Expr// ``]``
   | //Expr6// | -> | //LValue//
   |  |  **|**  | //Integer//
   |  |  **|**  | ``true``

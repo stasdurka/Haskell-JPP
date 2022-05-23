@@ -14,12 +14,12 @@ ALEX_OPTS  = --ghc
 
 # Default goal.
 
-all : TestMojeLatteBackup
+all : TestMojeLatte
 
 # Rules for building the parser.
 
-AbsMojeLatteBackup.hs LexMojeLatteBackup.x ParMojeLatteBackup.y PrintMojeLatteBackup.hs TestMojeLatteBackup.hs : mojeLatteBackup.cf
-	bnfc --haskell mojeLatteBackup.cf
+AbsMojeLatte.hs LexMojeLatte.x ParMojeLatte.y PrintMojeLatte.hs TestMojeLatte.hs : mojeLatte.cf
+	bnfc --haskell mojeLatte.cf
 
 %.hs : %.y
 	${HAPPY} ${HAPPY_OPTS} $<
@@ -27,7 +27,7 @@ AbsMojeLatteBackup.hs LexMojeLatteBackup.x ParMojeLatteBackup.y PrintMojeLatteBa
 %.hs : %.x
 	${ALEX} ${ALEX_OPTS} $<
 
-TestMojeLatteBackup : AbsMojeLatteBackup.hs LexMojeLatteBackup.hs ParMojeLatteBackup.hs PrintMojeLatteBackup.hs TestMojeLatteBackup.hs
+TestMojeLatte : AbsMojeLatte.hs LexMojeLatte.hs ParMojeLatte.hs PrintMojeLatte.hs TestMojeLatte.hs
 	${GHC} ${GHC_OPTS} $@
 
 # Rules for cleaning generated files.
@@ -36,7 +36,7 @@ clean :
 	-rm -f *.hi *.o *.log *.aux *.dvi
 
 distclean : clean
-	-rm -f AbsMojeLatteBackup.hs AbsMojeLatteBackup.hs.bak ComposOp.hs ComposOp.hs.bak DocMojeLatteBackup.txt DocMojeLatteBackup.txt.bak ErrM.hs ErrM.hs.bak LayoutMojeLatteBackup.hs LayoutMojeLatteBackup.hs.bak LexMojeLatteBackup.x LexMojeLatteBackup.x.bak ParMojeLatteBackup.y ParMojeLatteBackup.y.bak PrintMojeLatteBackup.hs PrintMojeLatteBackup.hs.bak SkelMojeLatteBackup.hs SkelMojeLatteBackup.hs.bak TestMojeLatteBackup.hs TestMojeLatteBackup.hs.bak XMLMojeLatteBackup.hs XMLMojeLatteBackup.hs.bak ASTMojeLatteBackup.agda ASTMojeLatteBackup.agda.bak ParserMojeLatteBackup.agda ParserMojeLatteBackup.agda.bak IOLib.agda IOLib.agda.bak Main.agda Main.agda.bak mojeLatteBackup.dtd mojeLatteBackup.dtd.bak TestMojeLatteBackup LexMojeLatteBackup.hs ParMojeLatteBackup.hs ParMojeLatteBackup.info ParDataMojeLatteBackup.hs Makefile
+	-rm -f AbsMojeLatte.hs AbsMojeLatte.hs.bak ComposOp.hs ComposOp.hs.bak DocMojeLatte.txt DocMojeLatte.txt.bak ErrM.hs ErrM.hs.bak LayoutMojeLatte.hs LayoutMojeLatte.hs.bak LexMojeLatte.x LexMojeLatte.x.bak ParMojeLatte.y ParMojeLatte.y.bak PrintMojeLatte.hs PrintMojeLatte.hs.bak SkelMojeLatte.hs SkelMojeLatte.hs.bak TestMojeLatte.hs TestMojeLatte.hs.bak XMLMojeLatte.hs XMLMojeLatte.hs.bak ASTMojeLatte.agda ASTMojeLatte.agda.bak ParserMojeLatte.agda ParserMojeLatte.agda.bak IOLib.agda IOLib.agda.bak Main.agda Main.agda.bak mojeLatte.dtd mojeLatte.dtd.bak TestMojeLatte LexMojeLatte.hs ParMojeLatte.hs ParMojeLatte.info ParDataMojeLatte.hs Makefile
 
 
 # EOF

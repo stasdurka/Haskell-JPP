@@ -33,13 +33,21 @@ transArg x = case x of
 
 transBlock :: AbsMojeLatte.Block -> Result
 transBlock x = case x of
-  AbsMojeLatte.Block stmts -> failure x
+  AbsMojeLatte.Block decls stmts -> failure x
+
+transDecl :: AbsMojeLatte.Decl -> Result
+transDecl x = case x of
+  AbsMojeLatte.Decl type_ items -> failure x
+
+transItem :: AbsMojeLatte.Item -> Result
+transItem x = case x of
+  AbsMojeLatte.NoInit ident -> failure x
+  AbsMojeLatte.Init ident expr -> failure x
 
 transStmt :: AbsMojeLatte.Stmt -> Result
 transStmt x = case x of
   AbsMojeLatte.Empty -> failure x
   AbsMojeLatte.BStmt block -> failure x
-  AbsMojeLatte.Decl type_ items -> failure x
   AbsMojeLatte.Ass lvalue expr -> failure x
   AbsMojeLatte.Incr lvalue -> failure x
   AbsMojeLatte.Decr lvalue -> failure x
@@ -49,11 +57,6 @@ transStmt x = case x of
   AbsMojeLatte.While expr block -> failure x
   AbsMojeLatte.For ident expr block -> failure x
   AbsMojeLatte.SExp expr -> failure x
-
-transItem :: AbsMojeLatte.Item -> Result
-transItem x = case x of
-  AbsMojeLatte.NoInit ident -> failure x
-  AbsMojeLatte.Init ident expr -> failure x
 
 transType :: AbsMojeLatte.Type -> Result
 transType x = case x of

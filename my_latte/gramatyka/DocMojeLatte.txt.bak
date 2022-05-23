@@ -31,8 +31,9 @@ The set of reserved words is the set of terminals appearing in the grammar. Thos
 
 The reserved words used in mojeLatte are the following:
   | ``boolean`` | ``else`` | ``false`` | ``for``
-  | ``if`` | ``in`` | ``int`` | ``range``
-  | ``return`` | ``string`` | ``true`` | ``while``
+  | ``if`` | ``in`` | ``int`` | ``let``
+  | ``range`` | ``return`` | ``string`` | ``true``
+  | ``while`` |  |  |
 
 The symbols used in mojeLatte are the following:
   | ( | ) | , | {
@@ -60,14 +61,14 @@ All other symbols are terminals.
   | //[Arg]// | -> | **eps**
   |  |  **|**  | //Arg//
   |  |  **|**  | //Arg// ``,`` //[Arg]//
-  | //Block// | -> | ``{`` //[Decl]// //[Stmt]// ``}``
+  | //Block// | -> | ``{`` ``let`` //[Decl]// ``in`` //[Stmt]// ``}``
   | //Decl// | -> | //Type// //[Item]// ``;``
   | //Item// | -> | //Ident//
   |  |  **|**  | //Ident// ``=`` //Expr//
   | //[Item]// | -> | //Item//
   |  |  **|**  | //Item// ``,`` //[Item]//
   | //[Decl]// | -> | //Decl//
-  |  |  **|**  | //Decl// ``;`` //[Decl]//
+  |  |  **|**  | //Decl// //[Decl]//
   | //[Stmt]// | -> | **eps**
   |  |  **|**  | //Stmt// //[Stmt]//
   | //Stmt// | -> | ``;``

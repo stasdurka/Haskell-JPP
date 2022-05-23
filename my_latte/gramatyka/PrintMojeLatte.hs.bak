@@ -164,7 +164,7 @@ instance Print [AbsMojeLatte.Arg] where
 
 instance Print AbsMojeLatte.Block where
   prt i = \case
-    AbsMojeLatte.Block decls stmts -> prPrec i 0 (concatD [doc (showString "{"), prt 0 decls, prt 0 stmts, doc (showString "}")])
+    AbsMojeLatte.Block decls stmts -> prPrec i 0 (concatD [doc (showString "{"), doc (showString "let"), prt 0 decls, doc (showString "in"), prt 0 stmts, doc (showString "}")])
 
 instance Print AbsMojeLatte.Decl where
   prt i = \case
@@ -183,7 +183,7 @@ instance Print [AbsMojeLatte.Item] where
 instance Print [AbsMojeLatte.Decl] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
-  prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
+  prt _ (x:xs) = concatD [prt 0 x, prt 0 xs]
 
 instance Print [AbsMojeLatte.Stmt] where
   prt _ [] = concatD []

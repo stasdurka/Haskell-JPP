@@ -19,13 +19,18 @@ data TopDef = FnDef Type Ident [Arg] Block
 data Arg = Arg Type Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data Block = Block [Stmt]
+data Block = Block [Decl] [Stmt]
+  deriving (C.Eq, C.Ord, C.Show, C.Read)
+
+data Decl = Decl Type Item
+  deriving (C.Eq, C.Ord, C.Show, C.Read)
+
+data Item = NoInit Ident | Init Ident Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Stmt
     = Empty
     | BStmt Block
-    | Decl Type [Item]
     | Ass LValue Expr
     | Incr LValue
     | Decr LValue
@@ -35,9 +40,6 @@ data Stmt
     | While Expr Block
     | For Ident Expr Block
     | SExp Expr
-  deriving (C.Eq, C.Ord, C.Show, C.Read)
-
-data Item = NoInit Ident | Init Ident Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Type = Int | Str | Bool | Arr Type Integer | Arr2 Type

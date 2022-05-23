@@ -46,7 +46,7 @@ While.     Stmt ::= "while" "(" Expr ")" Block ;
 
 For.       Stmt ::= "for" Ident "in range" "(" Expr ")" Block ;
 
-SExp.      Stmt ::= Expr  ";" ;
+-- SExp.      Stmt ::= Expr  ";" ;
 
 -- Types ---------------------------------------------------
 
@@ -56,9 +56,9 @@ Str.       Type ::= "string" ;
 
 Bool.      Type ::= "boolean" ;
 
-Arr.       Type ::= Type "[" Integer "]" ;
+-- Arr.       Type ::= Type "[" Integer "]" ;
 
-Arr2.      Type ::= Type "[" "]" ;
+-- Arr2.      Type ::= Type "[" "]" ;
 
 separator  Type "," ;
 
@@ -66,7 +66,7 @@ separator  Type "," ;
 
 EVar.      LValue ::= Ident ;
 
-EArrEl.    LValue ::= Ident "[" Expr "]" ;
+-- EArrEl.    LValue ::= Ident "[" Expr "]" ;
 
 Elval.     Expr6 ::= LValue ;
 

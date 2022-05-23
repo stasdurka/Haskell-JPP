@@ -39,13 +39,12 @@ data Stmt
     | CondElse Expr Block Block
     | While Expr Block
     | For Ident Expr Block
-    | SExp Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data Type = Int | Str | Bool | Arr Type Integer | Arr2 Type
+data Type = Int | Str | Bool
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data LValue = EVar Ident | EArrEl Ident Expr
+data LValue = EVar Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Expr

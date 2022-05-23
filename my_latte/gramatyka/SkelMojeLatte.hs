@@ -37,7 +37,7 @@ transBlock x = case x of
 
 transDecl :: AbsMojeLatte.Decl -> Result
 transDecl x = case x of
-  AbsMojeLatte.Decl type_ items -> failure x
+  AbsMojeLatte.Decl type_ item -> failure x
 
 transItem :: AbsMojeLatte.Item -> Result
 transItem x = case x of
@@ -56,20 +56,16 @@ transStmt x = case x of
   AbsMojeLatte.CondElse expr block1 block2 -> failure x
   AbsMojeLatte.While expr block -> failure x
   AbsMojeLatte.For ident expr block -> failure x
-  AbsMojeLatte.SExp expr -> failure x
 
 transType :: AbsMojeLatte.Type -> Result
 transType x = case x of
   AbsMojeLatte.Int -> failure x
   AbsMojeLatte.Str -> failure x
   AbsMojeLatte.Bool -> failure x
-  AbsMojeLatte.Arr type_ integer -> failure x
-  AbsMojeLatte.Arr2 type_ -> failure x
 
 transLValue :: AbsMojeLatte.LValue -> Result
 transLValue x = case x of
   AbsMojeLatte.EVar ident -> failure x
-  AbsMojeLatte.EArrEl ident expr -> failure x
 
 transExpr :: AbsMojeLatte.Expr -> Result
 transExpr x = case x of

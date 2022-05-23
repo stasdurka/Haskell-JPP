@@ -46,7 +46,7 @@ data Stmt
 data Type = Int | Str | Bool | Arr Type Integer | Arr2 Type
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data LValue = EVar Ident | EArrEl Ident Expr
+data LValue = EVar Ident -- | EArrEl Ident Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Expr

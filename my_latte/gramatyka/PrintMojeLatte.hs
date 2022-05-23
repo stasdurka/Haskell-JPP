@@ -168,17 +168,12 @@ instance Print AbsMojeLatte.Block where
 
 instance Print AbsMojeLatte.Decl where
   prt i = \case
-    AbsMojeLatte.Decl type_ items -> prPrec i 0 (concatD [prt 0 type_, prt 0 items, doc (showString ";")])
+    AbsMojeLatte.Decl type_ item -> prPrec i 0 (concatD [prt 0 type_, prt 0 item, doc (showString ";")])
 
 instance Print AbsMojeLatte.Item where
   prt i = \case
     AbsMojeLatte.NoInit id_ -> prPrec i 0 (concatD [prt 0 id_])
     AbsMojeLatte.Init id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 expr])
-
-instance Print [AbsMojeLatte.Item] where
-  prt _ [] = concatD []
-  prt _ [x] = concatD [prt 0 x]
-  prt _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
 
 instance Print [AbsMojeLatte.Decl] where
   prt _ [] = concatD []
@@ -201,15 +196,12 @@ instance Print AbsMojeLatte.Stmt where
     AbsMojeLatte.CondElse expr block1 block2 -> prPrec i 0 (concatD [doc (showString "if"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block1, doc (showString "else"), prt 0 block2])
     AbsMojeLatte.While expr block -> prPrec i 0 (concatD [doc (showString "while"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block])
     AbsMojeLatte.For id_ expr block -> prPrec i 0 (concatD [doc (showString "for"), prt 0 id_, doc (showString "in"), doc (showString "range"), doc (showString "("), prt 0 expr, doc (showString ")"), prt 0 block])
-    AbsMojeLatte.SExp expr -> prPrec i 0 (concatD [prt 0 expr, doc (showString ";")])
 
 instance Print AbsMojeLatte.Type where
   prt i = \case
     AbsMojeLatte.Int -> prPrec i 0 (concatD [doc (showString "int")])
     AbsMojeLatte.Str -> prPrec i 0 (concatD [doc (showString "string")])
     AbsMojeLatte.Bool -> prPrec i 0 (concatD [doc (showString "boolean")])
-    AbsMojeLatte.Arr type_ n -> prPrec i 0 (concatD [prt 0 type_, doc (showString "["), prt 0 n, doc (showString "]")])
-    AbsMojeLatte.Arr2 type_ -> prPrec i 0 (concatD [prt 0 type_, doc (showString "["), doc (showString "]")])
 
 instance Print [AbsMojeLatte.Type] where
   prt _ [] = concatD []
@@ -219,7 +211,6 @@ instance Print [AbsMojeLatte.Type] where
 instance Print AbsMojeLatte.LValue where
   prt i = \case
     AbsMojeLatte.EVar id_ -> prPrec i 0 (concatD [prt 0 id_])
-    AbsMojeLatte.EArrEl id_ expr -> prPrec i 0 (concatD [prt 0 id_, doc (showString "["), prt 0 expr, doc (showString "]")])
 
 instance Print AbsMojeLatte.Expr where
   prt i = \case

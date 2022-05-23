@@ -43,24 +43,22 @@ import LexMojeLatte
   '=='      { PT _ (TS _ 18) }
   '>'       { PT _ (TS _ 19) }
   '>='      { PT _ (TS _ 20) }
-  '['       { PT _ (TS _ 21) }
-  ']'       { PT _ (TS _ 22) }
-  'boolean' { PT _ (TS _ 23) }
-  'else'    { PT _ (TS _ 24) }
-  'false'   { PT _ (TS _ 25) }
-  'for'     { PT _ (TS _ 26) }
-  'if'      { PT _ (TS _ 27) }
-  'in'      { PT _ (TS _ 28) }
-  'int'     { PT _ (TS _ 29) }
-  'let'     { PT _ (TS _ 30) }
-  'range'   { PT _ (TS _ 31) }
-  'return'  { PT _ (TS _ 32) }
-  'string'  { PT _ (TS _ 33) }
-  'true'    { PT _ (TS _ 34) }
-  'while'   { PT _ (TS _ 35) }
-  '{'       { PT _ (TS _ 36) }
-  '||'      { PT _ (TS _ 37) }
-  '}'       { PT _ (TS _ 38) }
+  'boolean' { PT _ (TS _ 21) }
+  'else'    { PT _ (TS _ 22) }
+  'false'   { PT _ (TS _ 23) }
+  'for'     { PT _ (TS _ 24) }
+  'if'      { PT _ (TS _ 25) }
+  'in'      { PT _ (TS _ 26) }
+  'int'     { PT _ (TS _ 27) }
+  'let'     { PT _ (TS _ 28) }
+  'range'   { PT _ (TS _ 29) }
+  'return'  { PT _ (TS _ 30) }
+  'string'  { PT _ (TS _ 31) }
+  'true'    { PT _ (TS _ 32) }
+  'while'   { PT _ (TS _ 33) }
+  '{'       { PT _ (TS _ 34) }
+  '||'      { PT _ (TS _ 35) }
+  '}'       { PT _ (TS _ 36) }
   L_Ident   { PT _ (TV $$)   }
   L_integ   { PT _ (TI $$)   }
   L_quoted  { PT _ (TL $$)   }
@@ -100,15 +98,12 @@ Block
   : '{' 'let' ListDecl 'in' ListStmt '}' { AbsMojeLatte.Block $3 $5 }
 
 Decl :: { AbsMojeLatte.Decl }
-Decl : Type ListItem ';' { AbsMojeLatte.Decl $1 $2 }
+Decl : Type Item ';' { AbsMojeLatte.Decl $1 $2 }
 
 Item :: { AbsMojeLatte.Item }
 Item
   : Ident { AbsMojeLatte.NoInit $1 }
   | Ident '=' Expr { AbsMojeLatte.Init $1 $3 }
-
-ListItem :: { [AbsMojeLatte.Item] }
-ListItem : Item { (:[]) $1 } | Item ',' ListItem { (:) $1 $3 }
 
 ListDecl :: { [AbsMojeLatte.Decl] }
 ListDecl : Decl { (:[]) $1 } | Decl ListDecl { (:) $1 $2 }
@@ -128,15 +123,12 @@ Stmt
   | 'if' '(' Expr ')' Block 'else' Block { AbsMojeLatte.CondElse $3 $5 $7 }
   | 'while' '(' Expr ')' Block { AbsMojeLatte.While $3 $5 }
   | 'for' Ident 'in' 'range' '(' Expr ')' Block { AbsMojeLatte.For $2 $6 $8 }
-  | Expr ';' { AbsMojeLatte.SExp $1 }
 
 Type :: { AbsMojeLatte.Type }
 Type
   : 'int' { AbsMojeLatte.Int }
   | 'string' { AbsMojeLatte.Str }
   | 'boolean' { AbsMojeLatte.Bool }
-  | Type '[' Integer ']' { AbsMojeLatte.Arr $1 $3 }
-  | Type '[' ']' { AbsMojeLatte.Arr2 $1 }
 
 ListType :: { [AbsMojeLatte.Type] }
 ListType
@@ -145,9 +137,7 @@ ListType
   | Type ',' ListType { (:) $1 $3 }
 
 LValue :: { AbsMojeLatte.LValue }
-LValue
-  : Ident { AbsMojeLatte.EVar $1 }
-  | Ident '[' Expr ']' { AbsMojeLatte.EArrEl $1 $3 }
+LValue : Ident { AbsMojeLatte.EVar $1 }
 
 Expr6 :: { AbsMojeLatte.Expr }
 Expr6

@@ -182,7 +182,7 @@ instance Print [AbsMojeLatte.Decl] where
 
 instance Print AbsMojeLatte.Stmt where
   prt i = \case
-    AbsMojeLatte.Seq stmt1 stmt2 -> prPrec i 0 (concatD [prt 0 stmt1, prt 0 stmt2])
+    AbsMojeLatte.Seq stmt1 stmt2 -> prPrec i 0 (concatD [prt 0 stmt1, doc (showString ";"), prt 0 stmt2])
     AbsMojeLatte.Empty -> prPrec i 0 (concatD [doc (showString ";")])
     AbsMojeLatte.BStmt block -> prPrec i 0 (concatD [prt 0 block])
     AbsMojeLatte.Ass lvalue expr -> prPrec i 0 (concatD [prt 0 lvalue, doc (showString "="), prt 0 expr, doc (showString ";")])

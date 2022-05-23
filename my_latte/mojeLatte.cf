@@ -14,7 +14,8 @@ separator  Arg "," ;
 
 -- statements ----------------------------------------------
 
-Block.     Block ::= "[" [Decl] "]" "{"  [Stmt] "}" ;
+-- Block.     Block ::= "[" [Decl] "]" "{"  [Stmt] "}" ;
+Block.     Block ::= "[" [Decl] "]" "{"  Stmt "}" ;
 
 Decl.      Decl ::= Type Item ";" ;
 
@@ -24,7 +25,9 @@ separator nonempty Decl "" ;
 
 Init.      Item ::= Ident "=" Expr ;
 
-separator  Stmt "" ;
+Seq.       Stmt ::= Stmt Stmt ;
+
+-- separator  Stmt "" ;
 
 Empty.     Stmt ::= ";" ;
 

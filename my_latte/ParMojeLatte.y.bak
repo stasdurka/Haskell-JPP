@@ -110,7 +110,7 @@ ListDecl : Decl { (:[]) $1 } | Decl ListDecl { (:) $1 $2 }
 
 Stmt :: { AbsMojeLatte.Stmt }
 Stmt
-  : Stmt Stmt { AbsMojeLatte.Seq $1 $2 }
+  : Stmt ';' Stmt { AbsMojeLatte.Seq $1 $3 }
   | ';' { AbsMojeLatte.Empty }
   | Block { AbsMojeLatte.BStmt $1 }
   | LValue '=' Expr ';' { AbsMojeLatte.Ass $1 $3 }

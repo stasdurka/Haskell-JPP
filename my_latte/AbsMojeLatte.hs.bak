@@ -22,8 +22,7 @@ data Arg = Arg Type Ident
 data Block = Block [Decl] [Stmt]
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data Decl = Decl Type Item      
--- bez mozliwosci int x, y, z
+data Decl = Decl Type Item
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Item = NoInit Ident | Init Ident Expr
@@ -40,13 +39,12 @@ data Stmt
     | CondElse Expr Block Block
     | While Expr Block
     | For Ident Expr Block
-    | SExp Expr
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data Type = Int | Str | Bool | Arr Type Integer | Arr2 Type
+data Type = Int | Str | Bool
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
-data LValue = EVar Ident -- | EArrEl Ident Expr
+data LValue = EVar Ident
   deriving (C.Eq, C.Ord, C.Show, C.Read)
 
 data Expr

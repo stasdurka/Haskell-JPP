@@ -33,7 +33,7 @@ transArg x = case x of
 
 transBlock :: AbsMojeLatte.Block -> Result
 transBlock x = case x of
-  AbsMojeLatte.Block decls stmt -> failure x
+  AbsMojeLatte.Block decls stmts -> failure x
 
 transDecl :: AbsMojeLatte.Decl -> Result
 transDecl x = case x of
@@ -46,7 +46,6 @@ transItem x = case x of
 
 transStmt :: AbsMojeLatte.Stmt -> Result
 transStmt x = case x of
-  AbsMojeLatte.Seq stmt1 stmt2 -> failure x
   AbsMojeLatte.Empty -> failure x
   AbsMojeLatte.BStmt block -> failure x
   AbsMojeLatte.Ass lvalue expr -> failure x

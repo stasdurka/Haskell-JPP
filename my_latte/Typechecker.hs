@@ -100,6 +100,14 @@ typeOf (EOr exp1 exp2) = do
 -- checkTopDef :: TopDef -> RE ()
 -- checkTopDef (FnDef t n args b) = do
 
+-- checkProgram :: Program -> RE ()
+-- checkProgram (Program ((FnDef t name args b):fs)) = do
+--     local (Map.insert name (TFunc typesList)) (checkProgram (Program fs))
+--     where
+--         argToType :: Arg -> TType
+--         argToType (Arg t (Ident name)) = T t
+--         typesList = fmap argToType args
+
 -- checks function body and declaration and
 -- returns a list of types of the parameters
 -- assures it returns an Int
@@ -115,22 +123,22 @@ checkProgram (Program (f@(FnDef t (Ident name) args b):fs)) = do
     checkFunction f
     let fType = createFuncT name args
     local (Map.insert name fType) (checkProgram (Program fs))
-
-createFuncT :: Name -> [Arg] -> TType
-createFuncT name args = 
-    let toType :: Arg -> TType
-        toType (Arg t id) = T t
-    in TFunc (fmap toType args)
+    where
+        createFuncT :: Name -> [Arg] -> TType
+        createFuncT name args = 
+            let toType :: Arg -> TType
+                toType (Arg t id) = T t
+            in TFunc (fmap toType args)
 
 checkBlock :: Block -> RE ()
-checkBlock (Block [] stmts) = do
-    mapM_ checkStmt stmts
-checkBlock (Block ((Decl t item):ds) stmts) = do
+checkBlock (Block [] stmt) = do
+    checkStmt stmt
+checkBlock (Block ((Decl t item):ds) stmt) = do
     case item of
-        NoInit (Ident name) -> local (Map.insert name t') (checkBlock (Block ds stmts))
+        NoInit (Ident name) -> local (Map.insert name t') (checkBlock (Block ds stmt))
         Init (Ident name) expr -> do
             t' <- checkType expr t'          -- throws error if wrong type
-            local (Map.insert name t') (checkBlock (Block ds stmts))
+            local (Map.insert name t') (checkBlock (Block ds stmt))
         where t' = T t
             -- case t of
             --     Bool -> TBool
@@ -148,6 +156,9 @@ checkBlock (Block ((Decl t item):ds) stmts) = do
 checkStmt :: Stmt -> RE ()
 checkStmt Empty = return ()
 -- checkStmt (BStmt b) = checkBlock b
+checkStmt (Seq s1 s2) = do
+    checkStmt s1
+    checkStmt s2
 checkStmt (Ass lval expr) =
     case lval of 
         EVar (Ident name) -> do
@@ -180,10 +191,6 @@ checkStmt (While expr b) = do
 checkStmt (For ident expr b) = do           -- for i in range ...
     checkType expr (T Int)
     checkBlock b
-
-
-
-
 
 
 -- always returns TInt if the arguments match their expected types,

@@ -1,3 +1,7 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant ==" #-}
+{-# HLINT ignore "Redundant return" #-}
+{-# HLINT ignore "Use when" #-}
 import qualified Data.Map as M
 import Control.Monad.Reader
 import Control.Monad.State
@@ -33,9 +37,11 @@ type Loc = Int
 
 type Env = M.Map String Loc
 
-type Store = M.Map Loc Int
+type Store = M.Map Loc Val
 
 type RSE a = ReaderT Env (StateT Store (ExceptT String Identity)) a
+
+data Val = IntVal Integer | BoolVal Bool | StrVal String
 
 -- Env -> Store -> Either String (a, Store)
 {-
@@ -76,7 +82,7 @@ evalMulOp Mod e1 e2 = e1 `mod` e2
 evalAddOp Minus e1 e2 = e1 - e2
 evalAddOp Plus e1 e2 = e1 + e2
 
-alloc :: Store-> Loc
+alloc :: Store -> Loc
 alloc m = if (M.null m) then 0 
           else let (i, w) = M.findMax m in i+1  
 
@@ -101,51 +107,48 @@ evalMaybe s Nothing = throwError s
 evalMaybe s (Just a) = return a
 
 
-evalExp :: Expr -> RSE Type
+evalExp :: Expr -> RSE Val
 
 evalExp (Elval (EVar (Ident name))) = do
     env <- ask
     state <- get
     l <- evalMaybe "undefined variable" $ M.lookup name env
-    evalMaybe "undefined location" $ M.lookup l state   -- returns value if found
-evalExp (ELitInt n) = return n
-evalExp ELitTrue = return True
-evalExp ELitFalse = return False
+    v <- evalMaybe "undefined location" $ M.lookup l state   -- returns value if found
+    return v
+evalExp (ELitInt n) = return $ IntVal n
+evalExp ELitFalse = return $ BoolVal False
+evalExp ELitTrue = return $ BoolVal True
 -- evalExp EApp (Ident name) exp = do
 --     env <- ask
 --     state <- get
 
-evalExp (EString str) = return str
+evalExp (EString str) = return $ StrVal str
 evalExp (Neg e) = do
-    val <- evalExp e
-    return -e
+    IntVal val <- evalExp e
+    return $ IntVal (-val)
 evalExp (Not e) = do
-    val <- evalExp e
-    return not e
+    BoolVal v <- evalExp e
+    return $ BoolVal $ not v
 evalExp (EMul e1 op e2) = do
-    v1 <- evalExp e1
-    v2 <- evalExp e2
-    return $ evalMulOp op v1 v2
+    (IntVal v1) <- evalExp e1
+    (IntVal v2) <- evalExp e2
+    return $ IntVal $ evalMulOp op v1 v2
 evalExp (EAdd e1 op e2) = do
-    v1 <- evalExp e1
-    v2 <- evalExp e2
-    return $ evalAddOp op v1 v2
+    IntVal v1 <- evalExp e1
+    IntVal v2 <- evalExp e2
+    return $ IntVal $ evalAddOp op v1 v2
 evalExp (ERel e1 op e2) = do
-    v1 <- evalExp e1
-    v2 <- evalExp e2
-    return $ evalAddOp op v1 v2
-evalExp (ERel e1 op e2) = do
-    v1 <- evalExp e1
-    v2 <- evalExp e2
-    return $ evalAddOp op v1 v2
+    IntVal v1 <- evalExp e1
+    IntVal v2 <- evalExp e2
+    return $ BoolVal $ evalRelOp op v1 v2
 evalExp (EAnd e1 e2) = do
-    v1 <- evalExp e1
-    v2 <- evalExp e2
-    return $ v1 && v2
+    BoolVal v1 <- evalExp e1
+    BoolVal v2 <- evalExp e2
+    return $ BoolVal $ v1 && v2
 evalExp (EOr e1 e2) = do
-    v1 <- evalExp e1
-    v2 <- evalExp e2
-    return $ v1 || v2
+    BoolVal v1 <- evalExp e1
+    BoolVal v2 <- evalExp e2
+    return $ BoolVal $ v1 || v2
 
 ---
 ---Exec statement
@@ -153,121 +156,67 @@ evalExp (EOr e1 e2) = do
 
 interpret :: Stmt -> RSE ()  
 interpret Empty = return ()
+-- interpret BStmt block = 
 interpret (Ass (EVar (Ident x)) e) = do
     env <- ask
     l <- evalMaybe "undefined variable" (M.lookup x env)
-    val <- eval e 
+    val <- evalExp e 
     modify (M.insert l val)
 -- interpret (SeqS s1 s2) = do {interpret s1;interpret s2}
 interpret (Incr (EVar (Ident x))) = do
     env <- ask
+    state <- get
     l <- evalMaybe "undefined variable" (M.lookup x env)
-    val <- eval e
-    modify (M.insert l (val+1))
+    IntVal val <- evalMaybe "variable not initialized" $ M.lookup l state   -- returns value if found
+    modify $ M.insert l $ IntVal $ val+1
 interpret (Decr (EVar (Ident x))) = do
     env <- ask
+    state <- get
     l <- evalMaybe "undefined variable" (M.lookup x env)
-    val <- eval e
-    modify (M.insert l (val-1))
-
-interpret (IfS e s1 s2) = 
- do 
-  w <- eval e 
-  if w==0 then interpret s2 else interpret s1
+    IntVal val <- evalMaybe "variable not initialized" $ M.lookup l state   -- returns value if found
+    modify $ M.insert l $ IntVal $ val-1
+-- interpret (Ret expr) = ...
+interpret (Cond e b1) = do 
+  BoolVal cond <- evalExp e
+  if cond == True then interpret (BStmt b1) else return ()
+interpret (CondElse e b1 b2) = do 
+  BoolVal cond <- evalExp e
+  if cond == True then interpret (BStmt b1) else interpret (BStmt b2)
     
-interpret (WhileS e s1) = 
- do 
-  w <- eval e 
-  if w==0 then interpret S else do {interpret s1; interpret (WhileS e s1)} 
+interpret (While e b) = do 
+  BoolVal cond <- evalExp e 
+  if cond == True then interpret (BStmt b) 
+  else do {interpret (BStmt b); interpret (While e b)} 
 
-interpret (Block [] s) =  interpret s
+interpret (BStmt (Block [] s)) =  interpret s
 
-interpret (Block ((EVar x e):ds) s) =  
- do
-  l <- alloc'
-  w <- eval e 
-  modify (M.insert l w)
-  local (M.insert x l) (interpret (Block ds s))
+interpret (BStmt (Block ((Decl t item):ds) s)) =
+    case item of
+        Init x expr -> do
+            l <- alloc'
+            val <- evalExp expr
+            modify (M.insert l val)
+            local (M.insert x l) (interpret (Block ds s))
+        NoInit x -> do
+            l <- alloc'
+            local (M.insert x l) (interpret (Block ds s))
 
 -- type RSE a = ReaderT Env (StateT Store (ExceptT String Identity)) a
 
 -- Env -> Store -> Either String (a, Store)
 
-execStmt :: Stmt -> IO ()
-execStmt s =
-  print $
-      runExcept $ execStateT (runReaderT  (interpretCatch s) M.empty) M.empty
+-- execStmt :: Stmt -> IO ()
+-- execStmt s =
+--   print $
+--       runExcept $ execStateT (runReaderT  (interpretCatch s) M.empty) M.empty
 
 
-interpretCatch :: Stmt -> RSE ()
-interpretCatch s = do
-  interpret s `catchError` (\e -> modify (M.insert 17 (length e)))
+-- interpretCatch :: Stmt -> RSE ()
+-- interpretCatch s = do
+--   interpret s `catchError` (\e -> modify (M.insert 17 (length e)))
 
 --
 -- Run the interpreter
 --
 
 -- main = print $ evalState (runReaderT (eval testE) M.empty) M.empty 
-
-
---
--- A simple text expression:
---
-    --  let x =
-    --      let y = 5 + 6
-    --      in y / 5
-    --  in x * 3
--- 
--- ==>  6
---
-testE = LetE "x" (LetE "y" (OpE (+) (IntE 5) (IntE 6))
-                      (OpE div y (IntE 5)))
-                (OpE (*) x (IntE 3))
-    where x = VarE "x"
-          y = VarE "y"
-
-
--- x:=testE
--- while x { x:=x-1 }
-testS = (SeqS (AS "x" testE) (WhileS (VarE "x") (AS "x" (OpE (-) (VarE "x") (IntE 1))))) 
-
-testSB = Block [VarD "x" (IntE 3)] (SeqS (AS "x" testE) (WhileS (VarE "x") (AS "x" (OpE (-) (VarE "x") (IntE 1))))) 
-
-testSB1 = Block [VarD "x" (IntE 3)] (AS "x" (IntE 4))
-
-testSB2 = Block [VarD "x" (IntE 3), VarD "y" (IntE 7)] S
-
-{- testPrgW =
-   [x = 1000, y = 10] 
-   while y {
-     if x then
-       {[x = -1] y:=y+x}   -- testIB1
-     else
-       {[x = 1]; y:=y-x};  -- testIB2
-     x:=x+y
-   };
--}
-
-testIB1 = Block [VarD "x" (IntE (-1))] (AS "y" (OpE (+) (VarE "y") (VarE "x")))
-testIB2 = Block [VarD "x" (IntE 1)] (AS "y" (OpE (-) (VarE "y") (VarE "x")))
-testWB = SeqS (IfS (VarE "x") testIB1 testIB2) (AS "x" (OpE (+) (VarE "x") (VarE "y")))
-testW = WhileS (VarE "y") testWB
-
-testPrgW = Block [VarD "x" (IntE 1000), VarD "y" (IntE 10)] testW
-
-{-
-bad = {[y=42] y:=x}
--}
- 
-bad = Block [VarD "y" (IntE 42)] $ AS "y" (VarE "x")
-
--- execStmt bad
--- .... Left "undefined variable"
-
---
--- lift :: m a -> ReaderT r m a 
--- lift x = ReaderT $ \_ -> x
-
---
--- lift :: m a -> StateT s m a 
--- lift x = StateT $ \s -> do { a <- x; return (a,s) }
